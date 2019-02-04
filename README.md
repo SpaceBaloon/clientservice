@@ -2,6 +2,8 @@
 To launch application use java -jar target/clientservice-0.0.1-SNAPSHOT.jar
 To shutdown send POST request on localhost:8080/actuator/shutdown.
 
+#Currently without tests.
+
 This is RESTlike web service. 
  * Sending POST request with json data on localhost:8080/post
  * {
