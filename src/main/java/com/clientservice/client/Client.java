@@ -1,5 +1,6 @@
 package com.clientservice.client;
 
+import com.clientservice.validation.IdentDocValid;
 import com.clientservice.arrest.Arrest;
 import com.clientservice.misc.IdentDoc;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -23,13 +24,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 
 /**
  * Entity that represents client in the DB.
- * There are some transient properties for request handling.
  *
  * @author BelkinSergei
  */
@@ -173,42 +172,6 @@ public class Client implements Serializable {
     public void setArrests(List<Arrest> arrests) {
         this.arrests = arrests;
     }
-    
-    /**
-     * This is only for request handling.
-     */
-    @Transient
-    private int organCode;
-
-    public int getOrganCode() {
-        return organCode;
-    }
-
-    public void setOrganCode(int agency) {
-        this.organCode = agency;
-    }
-    
-    @Transient
-    private Arrest arrest;
-
-    public Arrest getArrest() {
-        return arrest;
-    }
-
-    public void setArrest(Arrest arrest) {
-        this.arrest = arrest;
-    }
-    
-    @Transient
-    private String requestId;
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
 
     @Override
     public String toString() {
@@ -244,12 +207,12 @@ public class Client implements Serializable {
     @Override
     public int hashCode() {
         int hash = 97;
-        hash += 13 * hash + ( id == null ? 0 : id.hashCode() );
-        hash += 13 * hash + ( lastName == null ? 0 : lastName.hashCode() );
-        hash += 13 * hash + ( firstName == null ? 0 : firstName.hashCode() );
-        hash += 13 * hash + ( birthDate == null ? 0 : birthDate.hashCode() );
-        hash += 13 * hash + ( birthPlace == null ? 0 : birthPlace.hashCode() );
-        hash += 13 * hash + ( identDoc == null ? 0 : identDoc.hashCode() );
+        hash = 13 * hash + ( id == null ? 0 : id.hashCode() );
+        hash = 13 * hash + ( lastName == null ? 0 : lastName.hashCode() );
+        hash = 13 * hash + ( firstName == null ? 0 : firstName.hashCode() );
+        hash = 13 * hash + ( birthDate == null ? 0 : birthDate.hashCode() );
+        hash = 13 * hash + ( birthPlace == null ? 0 : birthPlace.hashCode() );
+        hash = 13 * hash + ( identDoc == null ? 0 : identDoc.hashCode() );
         return hash;
     }
     

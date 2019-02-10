@@ -1,16 +1,17 @@
 package com.clientservice.requestAPI;
 
 import com.clientservice.requestAPI.validation.ArrestOperationFieldValid;
+import com.clientservice.validation.ArrestNumberPattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import java.time.LocalDate;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
@@ -19,26 +20,26 @@ import javax.validation.constraints.Size;
  */
 public class ArrestRequest {    
     
-    @NotNull( message = "{arrestRequest.docDate.validation.notNull}" )
+    @NotNull( message = "ArrestRequest.docDate {validation.notNull}" )
     @JsonFormat( pattern = "dd.MM.yyyy" )
     @JsonDeserialize( using = LocalDateDeserializer.class )
     @JsonSerialize( using = LocalDateSerializer.class )
     private LocalDate docDate;
     
-    @NotBlank( message = "{arrestRequest.docNum.validation.notBlank}" )
+    @NotBlank( message = "ArrestRequest.docNum {validation.notEmpty}" )
     @Column( name = "NUMBER", length = 30 )
-    @Pattern( regexp = "^[#№]?\\s*[a-zA-Z0-9-\\s]+$", message = "{arrestRequest.docNum.validation.pattern}" )
+    @ArrestNumberPattern
     private String docNum;
     
     @Size( max = 1000, message = "{arrestRequest.purpose.validation.size}" )
     private String purpose;
     
-    @NotNull( message = "{arrestRequest.amount.validation.notNull}" )
+    @NotNull( message = "ArrestRequest.amount {validation.notNull}" )
     private Long amount;
     
     private String refDocNum;
     
-    @ArrestOperationFieldValid
+    @ArrestOperationFieldValid( message = "{arrestRequest.operation.validation.arrestOperationFieldValid}" )
     private Integer operation;
 
     public LocalDate getDocDate() {
@@ -100,6 +101,62 @@ public class ArrestRequest {
     }
 
     public ArrestRequest() {
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 67 * hash + Objects.hashCode(this.docDate);
+        hash = 67 * hash + Objects.hashCode(this.docNum);
+        hash = 67 * hash + Objects.hashCode(this.purpose);
+        hash = 67 * hash + Objects.hashCode(this.amount);
+        hash = 67 * hash + Objects.hashCode(this.refDocNum);
+        hash = 67 * hash + Objects.hashCode(this.operation);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ArrestRequest other = (ArrestRequest) obj;
+        if (!Objects.equals(this.docNum, other.docNum)) {
+            return false;
+        }
+        if (!Objects.equals(this.purpose, other.purpose)) {
+            return false;
+        }
+        if (!Objects.equals(this.refDocNum, other.refDocNum)) {
+            return false;
+        }
+        if (!Objects.equals(this.docDate, other.docDate)) {
+            return false;
+        }
+        if (!Objects.equals(this.amount, other.amount)) {
+            return false;
+        }
+        if (!Objects.equals(this.operation, other.operation)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ArrestRequest: [ " + "docDate=" + docDate 
+                + ", docNum=" + docNum 
+                + ", purpose=" + purpose 
+                + ", amount=" + amount 
+                + ", refDocNum=" + refDocNum 
+                + ", operation=" + operation 
+                + " ]";
     }
     
 }

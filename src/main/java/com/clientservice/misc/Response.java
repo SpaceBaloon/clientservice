@@ -1,5 +1,8 @@
 package com.clientservice.misc;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.Transient;
+
 /**
  * This for response.
  *
@@ -23,8 +26,24 @@ public class Response {
     }
     
     private long arestId;
-    private ResultCode code;
+    private int code;
     private String message;
+    
+    @JsonIgnore
+    private ResultCode resultCode;
+
+    public int getCode() {
+        return code;
+    }
+
+    public ResultCode getResultCode() {
+        return resultCode;
+    }
+
+    public void setResultCode(ResultCode resultCode) {
+        this.resultCode = resultCode;
+        code = resultCode == null ? 0 : resultCode.getCode();
+    }
 
     public long getArestId() {
         return arestId;
@@ -32,14 +51,6 @@ public class Response {
 
     public void setArestId(long arestId) {
         this.arestId = arestId;
-    }
-
-    public ResultCode getCode() {
-        return code;
-    }
-
-    public void setCode(ResultCode code) {
-        this.code = code;
     }
 
     public String getMessage() {
@@ -53,10 +64,11 @@ public class Response {
     public Response() {
     }
 
-    public Response(long arestId, ResultCode code, String message) {
+    public Response(long arestId, ResultCode resultCode, String message) {
         this.arestId = arestId;
-        this.code = code;
         this.message = message;
+        this.code = ( resultCode == null ? 0 : resultCode.getCode() );
+        this.resultCode = resultCode;
     }
     
 }

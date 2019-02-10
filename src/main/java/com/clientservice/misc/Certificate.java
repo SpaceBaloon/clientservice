@@ -1,7 +1,6 @@
 package com.clientservice.misc;
 
 import com.clientservice.agency.Agency;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -16,6 +15,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * Entity that represents agency certificate data in the DB.
@@ -45,17 +45,17 @@ public class Certificate implements Serializable {
     @Column( name = "CERTIFICATE_NAME" )
     private String name;
     
-    @NotBlank
+    @NotBlank( message = "Certificate.conversionPattern {validation.notEmpty}" )
     @Column( name = "CONVERSION_PATTERN" )
     private String conversionPattern;
     
-    @NotBlank
+    @NotBlank( message = "Certificate.matchPattern {validation.notEmpty}" )
     @Column( name = "MATCH_PATTERN" )
     private String matchPattern;
     
+    @NotNull( message = "Certificate.agency {validation.notNull}" )
     @ManyToOne
     @JoinColumn( name = "AGENCY" )
-    @JsonIgnore
     private Agency agency;
     
     @Enumerated(EnumType.ORDINAL)
@@ -131,7 +131,7 @@ public class Certificate implements Serializable {
             return false;
         }
         final Certificate other = (Certificate) obj;
-        if (this.id != other.id) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
         if (!Objects.equals(this.name, other.name)) {

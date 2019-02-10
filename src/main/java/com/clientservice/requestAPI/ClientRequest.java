@@ -2,7 +2,7 @@ package com.clientservice.requestAPI;
 
 import com.clientservice.requestAPI.validation.ClientRequestValid;
 import com.clientservice.requestAPI.validation.misc.ClassesCheck;
-import com.clientservice.requestAPI.validation.misc.FieldsCheck;
+import java.util.Objects;
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -16,23 +16,23 @@ import javax.validation.constraints.NotNull;
 @ClientRequestValid( groups = ClassesCheck.class )
 public class ClientRequest {
     
-    @NotBlank( message = "{clientRequest.requestId.validation.notBlank}" )
+    @NotBlank( message = "ClientRequest.requestId {validation.notEmpty}" )
     private String requestId;
     
-    @NotBlank( message = "{clientRequest.lastName.validation.notBlank}" )
+    @NotBlank( message = "ClientRequest.lastName {validation.notEmpty}" )
     private String lastName;
     
-    @NotBlank( message = "{clientRequest.firstName.validation.notBlank}" )
+    @NotBlank( message = "ClientRequest.firstName {validation.notEmpty}" )
     private String firstName;
     
-    @NotNull( message = "{clientRequest.organCode.validation.notNull}" )
+    @NotNull( message = "ClientRequest.organCode {validation.notNull}" )
     private Integer organCode;
     
-    @NotNull( message = "{clientRequest.identDoc.validation.notNull}" )
+    @NotNull( message = "ClientRequest.identDoc {validation.notNull}" )
     @Valid()
     private IdentDocRequest identDoc;
     
-    @NotNull( message = "{clientRequest.arrest.validation.notNull}" )
+    @NotNull( message = "ClientRequest.arrest {validation.notNull}" )
     @Valid
     private ArrestRequest arrest;
     
@@ -95,6 +95,62 @@ public class ClientRequest {
 
     public void setArrest(ArrestRequest arrest) {
         this.arrest = arrest;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + Objects.hashCode(this.requestId);
+        hash = 67 * hash + Objects.hashCode(this.lastName);
+        hash = 67 * hash + Objects.hashCode(this.firstName);
+        hash = 67 * hash + Objects.hashCode(this.organCode);
+        hash = 67 * hash + Objects.hashCode(this.identDoc);
+        hash = 67 * hash + Objects.hashCode(this.arrest);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ClientRequest other = (ClientRequest) obj;
+        if (!Objects.equals(this.requestId, other.requestId)) {
+            return false;
+        }
+        if (!Objects.equals(this.lastName, other.lastName)) {
+            return false;
+        }
+        if (!Objects.equals(this.firstName, other.firstName)) {
+            return false;
+        }
+        if (!Objects.equals(this.organCode, other.organCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.identDoc, other.identDoc)) {
+            return false;
+        }
+        if (!Objects.equals(this.arrest, other.arrest)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ClientRequest: [ " + "requestId=" + requestId 
+                + ", lastName=" + lastName 
+                + ", firstName=" + firstName 
+                + ", organCode=" + organCode 
+                + ", identDoc=" + identDoc 
+                + ", arrest=" + arrest 
+                + " ]";
     }
     
 }

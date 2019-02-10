@@ -1,6 +1,5 @@
-package com.clientservice.client;
+package com.clientservice.validation;
 
-import com.clientservice.misc.IdentDocValidator;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

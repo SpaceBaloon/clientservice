@@ -1,6 +1,7 @@
-package com.clientservice.misc;
+package com.clientservice.validation;
 
-import com.clientservice.client.IdentDocValid;
+import com.clientservice.misc.CertificateType;
+import com.clientservice.misc.IdentDoc;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

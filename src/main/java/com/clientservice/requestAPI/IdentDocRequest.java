@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import java.time.LocalDate;
+import java.util.Objects;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -16,11 +17,11 @@ import javax.validation.constraints.NotNull;
  */
 public class IdentDocRequest {
     
-    @NotNull( message = "{identDocRequest.type.validation.notNull}" )
-    @Min( value = 0, message = "{identDocRequest.type.validation.min}" )
+    @NotNull( message = "IdentDocRequest.type {validation.notNull}" )
+    @Min( value = 0, message = "IdentDocRequest.type {validation.min}" )
     private Integer type;
     
-    @NotBlank( message = "{identDocRequest.numberSeries.validation.notBlank}" )
+    @NotBlank( message = "IdentDocRequest.numberSeries {validation.notEmpty}" )
     private String numberSeries;
     
     @JsonFormat( pattern = "dd.MM.yyyy" )
@@ -59,6 +60,47 @@ public class IdentDocRequest {
         this.type = type;
         this.numberSeries = numberSeries;
         this.issueDate = issueDate;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 19 * hash + Objects.hashCode(this.type);
+        hash = 19 * hash + Objects.hashCode(this.numberSeries);
+        hash = 19 * hash + Objects.hashCode(this.issueDate);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IdentDocRequest other = (IdentDocRequest) obj;
+        if (!Objects.equals(this.numberSeries, other.numberSeries)) {
+            return false;
+        }
+        if (!Objects.equals(this.type, other.type)) {
+            return false;
+        }
+        if (!Objects.equals(this.issueDate, other.issueDate)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "IdentDocRequest: [ " + "type=" + type 
+                + ", numberSeries=" + numberSeries 
+                + ", issueDate=" + issueDate 
+                + " ]";
     }
     
 }

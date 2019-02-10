@@ -1,23 +1,20 @@
 package com.clientservice.controllers;
 
-import com.clientservice.agency.Agency;
-import com.clientservice.agency.AgencyService;
+import com.clientservice.arrest.Arrest;
+import com.clientservice.arrest.ArrestService;
 import com.clientservice.exceptions.InternalDataException;
 import com.clientservice.client.Client;
-import com.clientservice.client.ClientRepository;
-import com.clientservice.misc.IdentDoc;
+import com.clientservice.client.ClientRequestConverter;
 import com.clientservice.misc.Response;
-import com.clientservice.client.ClientService;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import com.clientservice.requestAPI.ClientRequest;
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,38 +43,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ArrestController {
     
-    private final ClientService clientService;
-    private final AgencyService agencyService;
+    private final ClientRequestConverter clientConverter;
+    private final ArrestService arrestService;
 
-    public ArrestController(ClientService clientService, AgencyService agencyService) {
-        this.clientService = clientService;
-        this.agencyService = agencyService;
+    public ArrestController(ClientRequestConverter clientConverter, ArrestService arrestService) {
+        this.clientConverter = clientConverter;
+        this.arrestService = arrestService;
     }
     
-    @PostMapping( "/post" )
-    public Response putArrest( @RequestBody @Valid Client client ) {
-        /**
-         * certificate validation.
-         */
-        //find agency, throw exception
-        Agency agency = agencyService.findByCodeWithDetails( client.getOrganCode() );
-        //corresond pattern
-        if( !agencyService.isMatchPattern(agency, client.getIdentDoc() ) )
-            throw new InternalDataException( "Pattern of certificate is not matched." );
-        //convert certificate to internal format
-        IdentDoc docToSave = agencyService.toInternalCertificate( 
-                client.getIdentDoc(),
-                agencyService.getCerificate(agency, client.getIdentDoc() ) 
-        );
-        //retrieve client
-        Client newClient = clientService.saveClientFromRequest(client, docToSave);
-        
-        System.out.println( newClient.toString() );
-        
-        /**
-         * TODO: arrest validation.
-         */
-        return new Response( newClient.getId(), Response.ResultCode.SUCCESS, "" );
+    @PostMapping( "/put" )
+    public Response putArrest( @RequestBody @Valid ClientRequest request ) {
+        Client client = clientConverter.convert(request);
+        Arrest arrest = arrestService.saveFromRequest( request.getOrganCode(), client, request.getArrest() );
+        return new Response( arrest.getId(), Response.ResultCode.SUCCESS, "" );
     }
     
     /**
@@ -86,27 +64,24 @@ public class ArrestController {
     @ExceptionHandler
     @ResponseStatus( HttpStatus.BAD_REQUEST )
     public Response handleException( Exception ex ) {
-        /**
-         * Logging section.
-         */
         Response.ResultCode code = Response.ResultCode.ERROR;
-        int id = 0;
-        if( ex instanceof InternalDataException ) code = Response.ResultCode.INTERNAL_ERROR;
-        return new Response( 0, code, ex.getMessage() );
+        String message = ex.getMessage();
+        if( ex instanceof InternalDataException ) {
+            code = Response.ResultCode.INTERNAL_ERROR;
+        }
+        if( ex instanceof MethodArgumentNotValidException )
+            message = handleValidationExceptions( (MethodArgumentNotValidException) ex);
+        return new Response( 0, code, message );
     }
     
-    /**
-     * This is only for testing.
-     */
-    
-    @GetMapping( "/test/agency")
-    public Agency getAgency( @RequestParam( value = "id") int id ) {
-        return agencyService.findByCodeWithDetails( id );
-    }
-    
-    @GetMapping( "/test/agencies" )
-    public List<Agency> getAllAgency() {
-        return agencyService.getAllAgency();
+    private String handleValidationExceptions( MethodArgumentNotValidException ex ) {
+        final BindingResult errors = ex.getBindingResult();
+        StringBuilder builder = new StringBuilder();
+        builder.append("Validation failed with errors count=").append(errors.getErrorCount()).append(": ");
+        for( ObjectError er : errors.getAllErrors() ) {
+            builder.append( er.getDefaultMessage() ).append(", ");
+        }
+        return builder.toString();
     }
 
 }

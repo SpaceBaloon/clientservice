@@ -66,7 +66,7 @@ public class ClientRequestValidator implements ConstraintValidator<ClientRequest
         final Integer operation = value.getArrest().getOperation();
         if( 1 < operation && operation < 4
                 &&
-                !value.getArrest().getRefDocNum().equals( value.getIdentDoc().getNumberSeries() )
+                !value.getIdentDoc().getNumberSeries().equals( value.getArrest().getRefDocNum() )
                 ) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate( "IdentDoc.numberSeries="

@@ -1,6 +1,5 @@
 package com.clientservice.misc;
 
-import com.clientservice.client.IdentDocValid;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -12,27 +11,24 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
  * Used by CLient to store certificate data.
- * There are some transient properties for request handling.
  *
  * @author BelkinSergei
  */
 @Embeddable
 public class IdentDoc implements Serializable {
     
-    @NotNull
+    @NotNull( message = "IdentDoc.docType {validation.notNull}" )
     @Enumerated(EnumType.ORDINAL)
     @Column( name = "DOCTYPE" )
     private CertificateType docType;
     
-    @NotBlank
+    @NotBlank( message = "IdentDoc.numberSeries {validation.notNull}")
     @Column( name = "NUMBERSERIES" )
     private String numberSeries;
     
@@ -74,26 +70,12 @@ public class IdentDoc implements Serializable {
         this.issueDate = issueDate;
     }
     
-    /**
-     * This is only for request handling.
-     */
-    @Transient
-    private int type;
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
     @Override
     public String toString() {
-        return "IdentDoc: " + "docType=" + docType.ordinal()
+        return "IdentDoc: [ " + "docType=" + docType.ordinal()
                 + ", numberSeries=" + numberSeries
                 + ", issueDate=" + issueDate
-                ;
+                + " ]";
     }
 
     @Override
@@ -114,9 +96,9 @@ public class IdentDoc implements Serializable {
     @Override
     public int hashCode() {
         int hash = 113;
-        hash += 79 * hash + ( docType == null ? 0 : docType.hashCode() );
-        hash += 79 * hash + ( numberSeries == null ? 0 : numberSeries.hashCode() );
-        hash += 79 * hash + ( issueDate == null ? 0 : issueDate.hashCode() );
+        hash = 79 * hash + ( docType == null ? 0 : docType.hashCode() );
+        hash = 79 * hash + ( numberSeries == null ? 0 : numberSeries.hashCode() );
+        hash = 79 * hash + ( issueDate == null ? 0 : issueDate.hashCode() );
         return hash;
     }
     
