@@ -10,7 +10,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -18,7 +17,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -36,13 +39,38 @@ import javax.validation.constraints.NotBlank;
             "LASTNAME", "FIRSTNAME", "DOCTYPE", "NUMBERSERIES"
         } )
 )
+@NamedQueries ({ 
+    @NamedQuery( name = "Client.findUniqueOneCaseInsensitive",
+            query = "SELECT c FROM Client c WHERE UPPER( c.firstName ) = UPPER( ?1 ) "
+                    + " and UPPER( c.lastName ) = UPPER( ?2 ) "
+                    + " and c.identDoc.docType = ?3 "
+                    + " and c.identDoc.numberSeries = ?4 "
+    ),
+    @NamedQuery( name = "Client.findUniqueCaseDetailed",
+            query = "SELECT c FROM Client c LEFT JOIN FETCH c.arrests "
+                    + " WHERE UPPER( c.firstName ) = UPPER( ?1 ) "
+                    + " and UPPER( c.lastName ) = UPPER( ?2 ) "
+                    + " and c.identDoc.docType = ?3 "
+                    + " and c.identDoc.numberSeries = ?4 "
+    )
+})
 public class Client implements Serializable {
     
     final static long serialVersionUID = 123712371982730L;
     
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )
+    @Column(name = "ID")
     private Long id;
+
+    public Client( String firstName, String lastName, IdentDoc identDoc) {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.identDoc = identDoc;
+    }
+
+    public Client() {
+    }
     
     @NotBlank
     @Column( name = "LASTNAME", length = 100 )
@@ -53,6 +81,7 @@ public class Client implements Serializable {
     private String firstName;
     
     @Embedded
+    @IdentDocValid
     private IdentDoc identDoc;
     
     @Column( name = "BIRTHDATE" )
@@ -66,6 +95,28 @@ public class Client implements Serializable {
     
     @OneToMany( mappedBy = "client", orphanRemoval = true )
     private List<Arrest> arrests = new ArrayList<>();
+    
+    /**
+     * Saving names in certain format is highly needed because of unique constraint.
+     */
+    @PrePersist
+    @PreUpdate
+    public void prePersist() {
+        firstName = firstName.substring( 0, 1 ).toUpperCase()
+                + firstName.substring( 1 ).toLowerCase();
+        lastName = lastName.substring( 0, 1 ).toUpperCase()
+                + lastName.substring( 1 ).toLowerCase();
+    }
+    
+    public void addArrest( Arrest arrest ) {
+        arrests.add( arrest );
+        arrest.setClient( this );
+    }
+    
+    public void removeArrest( Arrest arrest ) {
+        arrests.remove( arrest );
+        arrest.setClient( null );
+    }
     
     public Long getId() {
         return id;
@@ -161,14 +212,13 @@ public class Client implements Serializable {
 
     @Override
     public String toString() {
-        return "Client: " + "id=" + id
+        return "Client:[ " + "id=" + id
                 + ", lastName=" + lastName
                 + ", firstName=" + firstName
                 + ", birthDate=" + birthDate
                 + ", birthPlace=" + birthPlace
-                + ", identDoc=" + ( identDoc == null ? "" : identDoc.toString() )
-                + ", arrests=" + ( Arrays.toString( arrests.toArray() ))
-                ;
+                + ", identDoc=" + identDoc
+                + " ]";
     }
 
     @Override

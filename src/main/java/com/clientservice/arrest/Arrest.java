@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,9 +19,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -32,15 +36,24 @@ import javax.validation.constraints.Pattern;
  * @author BelkinSergei
  */
 @Entity
-@Table( name = "AREST" )
+@NamedQueries(
+        @NamedQuery( name = "Arrest.findUniqueOne", 
+                query = "SELECT a FROM Arrest a WHERE a.agency = ?1 AND a.client = ?2 "
+                        + " AND a.date = ?3 AND a.number = ?4"
+        )
+)
+@Table( name = "AREST", 
+        uniqueConstraints = @UniqueConstraint( columnNames = { "DATE", "NUMBER" } )
+)
 public class Arrest {
     
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )
-    private long id;
+    private Long id;
     
     @NotNull
     @OneToOne
+    @JoinColumn( name = "AGENCY_ID" )
     private Agency agency;
     
     @NotNull
@@ -71,11 +84,24 @@ public class Arrest {
     @JoinColumn( name = "CLIENT_ID" )
     private Client client;
 
-    public long getId() {
+    public Arrest(Agency agency, LocalDate date, String number, BigDecimal amount, 
+            ArestStatus status, Client client) {
+        this.agency = agency;
+        this.date = date;
+        this.number = number;
+        this.amount = amount;
+        this.status = status;
+        this.client = client;
+    }
+
+    public Arrest() {
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -144,6 +170,69 @@ public class Arrest {
 
     public void setOperation(int operation) {
         this.operation = operation;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 13;
+        hash = 53 * hash + Objects.hashCode(this.id);
+        hash = 53 * hash + Objects.hashCode(this.agency);
+        hash = 53 * hash + Objects.hashCode(this.date);
+        hash = 53 * hash + Objects.hashCode(this.number);
+        hash = 53 * hash + Objects.hashCode(this.basis);
+        hash = 53 * hash + Objects.hashCode(this.amount);
+        hash = 53 * hash + Objects.hashCode(this.status);
+        hash = 53 * hash + Objects.hashCode(this.client);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final Arrest other = (Arrest) obj;
+        if (!Objects.equals(this.number, other.number)) {
+            return false;
+        }
+        if (!Objects.equals(this.basis, other.basis)) {
+            return false;
+        }
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.agency, other.agency)) {
+            return false;
+        }
+        if (!Objects.equals(this.date, other.date)) {
+            return false;
+        }
+        if (!Objects.equals(this.amount, other.amount)) {
+            return false;
+        }
+        if (this.status != other.status) {
+            return false;
+        }
+        if (!Objects.equals(this.client, other.client)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Arrest:[ " + "id=" + id 
+                + ", agency=" + agency 
+                + ", date=" + date 
+                + ", number=" + number 
+                + ", basis=" + basis 
+                + ", amount=" + amount 
+                + ", status=" + status
+                + ", client=" + client
+                + " ]";
     }
     
 }

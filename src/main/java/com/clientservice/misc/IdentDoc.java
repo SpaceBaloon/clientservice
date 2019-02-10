@@ -1,5 +1,6 @@
 package com.clientservice.misc;
 
+import com.clientservice.client.IdentDocValid;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -11,7 +12,11 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * Used by CLient to store certificate data.
@@ -22,10 +27,12 @@ import javax.persistence.Transient;
 @Embeddable
 public class IdentDoc implements Serializable {
     
+    @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column( name = "DOCTYPE" )
     private CertificateType docType;
     
+    @NotBlank
     @Column( name = "NUMBERSERIES" )
     private String numberSeries;
     
@@ -34,6 +41,14 @@ public class IdentDoc implements Serializable {
     @JsonDeserialize( using = LocalDateDeserializer.class )
     @JsonSerialize( using = LocalDateSerializer.class )
     private LocalDate issueDate;
+
+    public IdentDoc(CertificateType docType, String numberSeries) {
+        this.docType = docType;
+        this.numberSeries = numberSeries;
+    }
+
+    public IdentDoc() {
+    }
 
     public CertificateType getDocType() {
         return docType;

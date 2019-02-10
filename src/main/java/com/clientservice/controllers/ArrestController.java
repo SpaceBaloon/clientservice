@@ -1,20 +1,24 @@
-package com.clientservice.arrest;
+package com.clientservice.controllers;
 
 import com.clientservice.agency.Agency;
 import com.clientservice.agency.AgencyService;
 import com.clientservice.exceptions.InternalDataException;
 import com.clientservice.client.Client;
+import com.clientservice.client.ClientRepository;
 import com.clientservice.misc.IdentDoc;
 import com.clientservice.misc.Response;
 import com.clientservice.client.ClientService;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -56,7 +60,7 @@ public class ArrestController {
          * certificate validation.
          */
         //find agency, throw exception
-        Agency agency = agencyService.getAgencyByCode( client.getOrganCode() );
+        Agency agency = agencyService.findByCodeWithDetails( client.getOrganCode() );
         //corresond pattern
         if( !agencyService.isMatchPattern(agency, client.getIdentDoc() ) )
             throw new InternalDataException( "Pattern of certificate is not matched." );
@@ -73,15 +77,15 @@ public class ArrestController {
         /**
          * TODO: arrest validation.
          */
-        
         return new Response( newClient.getId(), Response.ResultCode.SUCCESS, "" );
     }
     
     /**
      * Handle all exceptions in this servlet.
      */
-    @ExceptionHandler(  Exception.class)
-    public Response handleException( HttpServletRequest request, Exception ex ) {
+    @ExceptionHandler
+    @ResponseStatus( HttpStatus.BAD_REQUEST )
+    public Response handleException( Exception ex ) {
         /**
          * Logging section.
          */
@@ -97,13 +101,12 @@ public class ArrestController {
     
     @GetMapping( "/test/agency")
     public Agency getAgency( @RequestParam( value = "id") int id ) {
-        return agencyService.getAgencyByCode( id );
+        return agencyService.findByCodeWithDetails( id );
     }
     
     @GetMapping( "/test/agencies" )
     public List<Agency> getAllAgency() {
         return agencyService.getAllAgency();
     }
-    
-    
+
 }

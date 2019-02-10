@@ -10,8 +10,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ClientRepository extends JpaRepository<Client, Long>{
     
+    @Deprecated
     List<Client> findByLastNameAndFirstNameAndIdentDocDocTypeAndIdentDocNumberSeries( 
             String lastName, String firstName, CertificateType type, String number
+    );
+    
+    Client findUniqueOneCaseInsensitive( String firstName, String lastName,
+            CertificateType docType, String numberSeries 
+    );
+    
+    Client findUniqueCaseDetailed( String firstName, String lastName,
+            CertificateType docType, String numberSeries 
     );
     
 }

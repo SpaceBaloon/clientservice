@@ -32,10 +32,8 @@ public class AgencyService {
         return repository.findAll();
     }
     
-    public Agency getAgencyByCode( int code ) {
-        return repository.findById( code ).orElseThrow( () -> 
-                new InternalDataException( "Agency with id=" + code + " not found." )  
-        );
+    public Agency findByCodeWithDetails( int code ) {
+        return repository.findByCodeWithDetails( code );
     }
         
     public boolean isMatchPattern( Agency agency, IdentDoc identDoc ) {
@@ -61,15 +59,15 @@ public class AgencyService {
         switch( certificate.getType() ) {
             case FOREIGN_PASSPORT: {
                 result.setNumberSeries( 
-                        toInternalNumber( CertificateType.FOREIGN_PASSPORT.getFormat(), 
-                                certificate.getPattern(), identDoc.getNumberSeries()
+                        toInternalNumber( CertificateType.FOREIGN_PASSPORT.getConversionPattern(), 
+                                certificate.getConversionPattern(), identDoc.getNumberSeries()
                                 ) );
                 break;
             }
             case PASSPORT: {
                 result.setNumberSeries( 
-                        toInternalNumber( CertificateType.PASSPORT.getFormat(), 
-                                certificate.getPattern(), identDoc.getNumberSeries()
+                        toInternalNumber( CertificateType.PASSPORT.getConversionPattern(), 
+                                certificate.getConversionPattern(), identDoc.getNumberSeries()
                                 ) );
                 break;
             }

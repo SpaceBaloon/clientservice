@@ -1,6 +1,7 @@
 package com.clientservice.client;
 
 import com.clientservice.exceptions.InternalDataException;
+import com.clientservice.misc.CertificateType;
 import com.clientservice.misc.IdentDoc;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClientService {
     
-    private ClientRepository repository;
-
     @Autowired
-    public ClientService(ClientRepository repository) {
-        this.repository = repository;
+    private ClientRepository repository;
+    
+    public Client findUniqueOneCaseInsensitive( String firstName, String lastName,
+            CertificateType docType, String numberSeries ) {
+        return repository.findUniqueOneCaseInsensitive(firstName, lastName, docType, numberSeries);
     }
     
     public Client saveClientFromRequest( Client client, IdentDoc identDoc ) {
